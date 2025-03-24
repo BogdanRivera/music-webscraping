@@ -14,7 +14,7 @@ class MusicspiderSpider(scrapy.Spider):
             link = "https://genius.com" + link
             yield scrapy.Request(link, callback=self.parse_artist)
 
-        # Lee 3 artistas aleatorios del archivo artist_list.txt
+        # Lee 3 artistas aleatorios 
         with open('artist_list.txt', 'r', encoding='utf-8') as f:
             artists = f.read().splitlines()
         random_artists = random.sample(artists, 3)
@@ -25,21 +25,20 @@ class MusicspiderSpider(scrapy.Spider):
             yield scrapy.Request(artist_link, callback=self.parse_artist_songs)
 
     def parse_artist(self, response):
-    # Extraer la lista de artistas
+        # Extraer la lista 
         artist_list = response.css('a[href*="https://genius.com/artists/"]::text').getall()
-        # Ordenar alfabéticamente los nuevos artistas
+        # Ordenar 
         artist_list.sort()
-        # Leer los artistas ya escritos (si el archivo existe)
+        # Leer los artistas ya escritos 
         try:
             with open('artist_list.txt', 'r', encoding='utf-8') as f:
                 existing_artists = set(f.read().splitlines())  # Evitar duplicados
         except FileNotFoundError:
             existing_artists = set()
-        # Crear un conjunto con los nuevos artistas
         new_artists = set(artist_list)
-        # Determinar los artistas únicos (que aún no están en el archivo)
+        # Determinar los artistas únicos
         unique_artists = new_artists - existing_artists
-        # Escribir solo los artistas únicos en el archivo
+        # Escribe solo los artistas únicos
         with open('artist_list.txt', 'a', encoding='utf-8') as f:
             for artist in sorted(unique_artists):  # Escribir en orden alfabético
                 f.write(artist + '\n')
@@ -53,7 +52,7 @@ class MusicspiderSpider(scrapy.Spider):
 
     def parse_artist_songs(self, response):
         songs_links = response.css('.ListSection-desktop__Content-sc-2bca79e6-7.bmOkxr a::attr(href)').getall()
-        # Si la longitud de las canciones es mayor a 3: 
+        # Se limitan a 3 canciones aleatorias
         if len(songs_links) > 3:
             random_songs = random.sample(songs_links, 3)
             for song_link in random_songs:
@@ -68,10 +67,10 @@ class MusicspiderSpider(scrapy.Spider):
         artist_name = response.css('.PortalTooltip__Trigger-sc-e6affa6e-1.ceEDGa a::text').get()
         album_name = response.css('a.PrimaryAlbum__Title-sc-ed119306-4::text').get()
 
-        # Extraer todas las partes de texto dentro del contenedor de letras
+        # Extraer todas las partes de texto 
         lyrics = response.css('div[data-lyrics-container="true"] *::text').getall()
 
-        # Unir las partes de texto en un solo string
+        # Unir las partes de texto 
         full_lyrics = '\n'.join([line.strip() for line in lyrics if line.strip()])  # Quitar espacios en blanco
 
         release_date = response.xpath('//div[div[text()="Released on"]]/div[2]/text()').get()
@@ -89,7 +88,6 @@ class MusicspiderSpider(scrapy.Spider):
             'tags': tags
         }
 
-        # Guardar como JSONL (JSON por línea)
         with open('songs.json', 'a', encoding='utf-8') as f:
             json.dump(song_data, f, ensure_ascii=False)
             f.write('\n')
