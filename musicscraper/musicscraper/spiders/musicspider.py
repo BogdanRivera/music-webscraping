@@ -17,10 +17,10 @@ class MusicspiderSpider(scrapy.Spider):
         # Lee 3 artistas aleatorios 
         with open('artist_list.txt', 'r', encoding='utf-8') as f:
             artists = f.read().splitlines()
-        random_artists = random.sample(artists, 3)
-        print('Artistas aleatorios:', random_artists)
+        #random_artists = random.sample(artists, 3)
+        #print('Artistas aleatorios:', random_artists)
         # Visita la página de cada artista aleatorio
-        for artist in random_artists:
+        for artist in artists:
             artist_link = 'https://genius.com/artists/' + artist.lower().replace(' ', '-') + '/songs'
             yield scrapy.Request(artist_link, callback=self.parse_artist_songs)
 
@@ -52,18 +52,13 @@ class MusicspiderSpider(scrapy.Spider):
 
     def parse_artist_songs(self, response):
         songs_links = response.css('.ListSection-desktop__Content-sc-2bca79e6-7.bmOkxr a::attr(href)').getall()
-        # Se limitan a 3 canciones aleatorias
-        if len(songs_links) > 3:
-            random_songs = random.sample(songs_links, 3)
-            for song_link in random_songs:
-                yield scrapy.Request(song_link, callback=self.parse_song)
-        else:
-            for song_link in songs_links:
-                yield scrapy.Request(song_link, callback=self.parse_song)
+
+        for song_link in songs_links:
+            yield scrapy.Request(song_link, callback=self.parse_song)
 
     def parse_song(self, response):
         # Extraer nombre de la canción, albúm, artista, letra, release_date, writters y tags 
-        song_name = response.css('span.SongHeader-desktop__HiddenMask-sc-9c2f20c9-11::text').get()
+        song_name = response.css('.SongHeader-desktop__HiddenMask-sc-9c2f20c9-11::text').get()
         artist_name = response.css('.PortalTooltip__Trigger-sc-e6affa6e-1.ceEDGa a::text').get()
         album_name = response.css('a.PrimaryAlbum__Title-sc-ed119306-4::text').get()
 
