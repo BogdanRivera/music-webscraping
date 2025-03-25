@@ -58,10 +58,10 @@ class MusicspiderSpider(scrapy.Spider):
 
     def parse_song(self, response):
         # Extraer nombre de la canción, albúm, artista, letra, release_date, writters y tags 
-        song_name = response.css('.SongHeader-desktop__HiddenMask-sc-9c2f20c9-11::text').get()
+        song_name = response.css('[class*="SongHeader-desktop__HiddenMask-sc"]::text').get()
         artist_name = response.css('.PortalTooltip__Trigger-sc-e6affa6e-1.ceEDGa a::text').get()
-        album_name = response.css('a.PrimaryAlbum__Title-sc-ed119306-4::text').get()
-
+        #album_name = response.css('a.PrimaryAlbum__Title-sc-ed119306-4::text').get()
+        album_name = response.css('[href *="primary-album"]::text').get()
         # Extraer todas las partes de texto 
         lyrics = response.css('div[data-lyrics-container="true"] *::text').getall()
 
