@@ -1,5 +1,4 @@
 import scrapy
-import random
 import json
 
 class MusicspiderSpider(scrapy.Spider):
@@ -17,9 +16,6 @@ class MusicspiderSpider(scrapy.Spider):
         # Lee 3 artistas aleatorios 
         with open('artist_list.txt', 'r', encoding='utf-8') as f:
             artists = f.read().splitlines()
-        #random_artists = random.sample(artists, 3)
-        #print('Artistas aleatorios:', random_artists)
-        # Visita la página de cada artista aleatorio
         for artist in artists:
             artist_link = 'https://genius.com/artists/' + artist.lower().replace(' ', '-') + '/songs'
             yield scrapy.Request(artist_link, callback=self.parse_artist_songs)
@@ -43,13 +39,6 @@ class MusicspiderSpider(scrapy.Spider):
             for artist in sorted(unique_artists):  # Escribir en orden alfabético
                 f.write(artist + '\n')
 
-        #artists_links = response.css('a[href*="https://genius.com/artists/"]::attr(href)').getall()
-        #for artist_link in artists_links:
-            #Enlaza los artistas con los links de las canciones
-            #artist_link = artist_link + "/songs"
-            #yield scrapy.Request(artist_link, callback=self.parse_artist_songs)
-
-
     def parse_artist_songs(self, response):
         songs_links = response.css('.ListSection-desktop__Content-sc-2bca79e6-7.bmOkxr a::attr(href)').getall()
 
@@ -60,11 +49,9 @@ class MusicspiderSpider(scrapy.Spider):
         # Extraer nombre de la canción, albúm, artista, letra, release_date, writters y tags 
         song_name = response.css('[class*="SongHeader-desktop__HiddenMask-sc"]::text').get()
         artist_name = response.css('.PortalTooltip__Trigger-sc-e6affa6e-1.ceEDGa a::text').get()
-        #album_name = response.css('a.PrimaryAlbum__Title-sc-ed119306-4::text').get()
         album_name = response.css('[href *="primary-album"]::text').get()
         # Extraer todas las partes de texto 
         lyrics = response.css('div[data-lyrics-container="true"] *::text').getall()
-
         # Unir las partes de texto 
         full_lyrics = '\n'.join([line.strip() for line in lyrics if line.strip()])  # Quitar espacios en blanco
 
