@@ -36,28 +36,29 @@ Los datos extraídos se guardan en un archivo `songs.json` para su posterior an�
     git clone https://github.com/BogdanRivera/music-webscraping
     ```
 
-2.  Crea un entorno virtual (recomendado):
+2.  Crea un entorno virtual:
 
     ```bash
     conda create -n music-scraper python=3.8
     conda activate music-scraper
     ```
 
+
+3. Navega hasta el directorio `musicscraper`:
+
+    ```bash
+    cd ./musicscraper
+    ```
+
 3.  Instala las dependencias:
 
     ```bash
-    pip install -r requirements.txt
+    conda install requirements.txt
     ```
 
 ## Ejecución
 
-1.  Navega hasta el directorio `musicscraper`:
-
-    ```bash
-    cd musicscraper/musicscraper
-    ```
-
-2.  Ejecuta el spider:
+1.  Ejecuta el spider:
 
     ```bash
     scrapy crawl musicspider
