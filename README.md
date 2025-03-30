@@ -33,7 +33,7 @@ Los datos extra√≠dos se guardan en un archivo `songs.json` para su posterior an√
 1.  Clona el repositorio:
 
     ```bash
-    git clone [[https://github.com/sindresorhus/del](https://github.com/BogdanRivera/music-webscraping)]
+    git clone https://github.com/BogdanRivera/music-webscraping
     ```
 
 2.  Crea un entorno virtual (recomendado):
@@ -54,7 +54,7 @@ Los datos extra√≠dos se guardan en un archivo `songs.json` para su posterior an√
 1.  Navega hasta el directorio `musicscraper`:
 
     ```bash
-    cd musicscraper/musicscraper/spiders
+    cd musicscraper/musicscraper
     ```
 
 2.  Ejecuta el spider:
