@@ -1,7 +1,8 @@
 import scrapy
 import json
+import re
 
-class MusicspiderSpider(scrapy.Spider):
+class MusicSpider(scrapy.Spider):
     name = "musicspider"
     allowed_domains = ["genius.com"]
     start_urls = ["https://genius.com"]
@@ -10,14 +11,14 @@ class MusicspiderSpider(scrapy.Spider):
         music_links = response.css('a.PageFooterArtistLinks__Link-sc-1918a364-0::attr(href)').getall()
         music_links.sort(reverse=True)
         for link in music_links:
-            link = "https://genius.com" + link
+            link = "https://genius.com" + link #Por cada link de artista, se añade el dominio
             yield scrapy.Request(link, callback=self.parse_artist)
 
-        # Lee 3 artistas aleatorios 
-        with open('artist_list.txt', 'r', encoding='utf-8') as f:
+        
+        with open('./artist_list.txt', 'r', encoding='utf-8') as f:
             artists = f.read().splitlines()
         for artist in artists:
-            artist_link = 'https://genius.com/artists/' + artist.lower().replace(' ', '-') + '/songs'
+            artist_link = 'https://genius.com/artists/' + artist.lower().replace(' ', '-') + '/songs' #Cambia espacios por guiones y pone todo en minúscula
             yield scrapy.Request(artist_link, callback=self.parse_artist_songs)
 
     def parse_artist(self, response):
@@ -46,19 +47,25 @@ class MusicspiderSpider(scrapy.Spider):
             yield scrapy.Request(song_link, callback=self.parse_song)
 
     def parse_song(self, response):
-        # Extraer nombre de la canción, albúm, artista, letra, release_date, writters y tags 
-        song_name = response.css('[class*="SongHeader-desktop__HiddenMask-sc"]::text').get()
-        artist_name = response.css('.PortalTooltip__Trigger-sc-e6affa6e-1.ceEDGa a::text').get()
-        album_name = response.css('[href *="primary-album"]::text').get()
+        """Extraer nombre de la canción, albúm, artista, letra, release_date, producers y tags"""
+
+        song_name = response.css('[class*="SongHeader-desktop__HiddenMask-sc"]::text').get() #Nombre de la canción
+        artist_name = response.css('.PortalTooltip__Trigger-sc-e6affa6e-1.ceEDGa a::text').get() #Nombre del artista
+        album_name = response.css('[href *="primary-album"]::text').get() #Nombre del álbum
+
+        # Extraer el contenido de la letra
         # Extraer todas las partes de texto 
         lyrics = response.css('div[data-lyrics-container="true"] *::text').getall()
         # Unir las partes de texto 
         full_lyrics = '\n'.join([line.strip() for line in lyrics if line.strip()])  # Quitar espacios en blanco
 
-        release_date = response.xpath('//div[div[text()="Released on"]]/div[2]/text()').get()
+        release_date = response.xpath('//div[div[text()="Released on"]]/div[2]/text()').get() #Fecha de lanzamiento
 
-        producers = response.xpath('//div[div[text()="Producers"]]/div//a[contains(@class, "StyledLink-sc-15c685a-0")]/text()').getall()
-        tags = response.css('a.SongTags__Tag-sc-b55131f0-2::text').getall()
+        producers = response.xpath('//div[div[text()="Producers"]]/div//a[contains(@class, "StyledLink-sc-15c685a-0")]/text()').getall() #Productores
+        tags = response.css('a.SongTags__Tag-sc-b55131f0-2::text').getall() #Tags
+
+        # Reemplazar caracteres no válidos en la letra
+        full_lyrics = re.sub(r'[{}]', lambda x: '\\' + x.group(0), full_lyrics) 
 
         song_data ={
             'song_name': song_name,
@@ -69,7 +76,6 @@ class MusicspiderSpider(scrapy.Spider):
             'producers': producers,
             'tags': tags
         }
-
         with open('songs.json', 'a', encoding='utf-8') as f:
             json.dump(song_data, f, ensure_ascii=False)
             f.write('\n')
