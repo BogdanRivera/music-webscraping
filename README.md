@@ -66,6 +66,11 @@ Los datos extraídos se guardan en un archivo `songs.json` para su posterior an�
 
     Esto iniciará el proceso de web scraping y guardará los datos en `songs.json`.
 
+    En dado caso de que no inicie se deberá ejecutar este comando y posteriormente volver a probar el código anterior:
+   ```bash
+    conda install scrapy parsel lxml
+   ```
+
 ## Estructura del Proyecto
 
 * `musicscraper/`: Contiene el código fuente del spider de Scrapy.
